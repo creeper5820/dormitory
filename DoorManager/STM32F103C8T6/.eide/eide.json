@@ -1,0 +1,116 @@
+{
+  "name": "STM32F103C8T6",
+  "type": "ARM",
+  "dependenceList": [],
+  "srcDirs": [
+    "Core",
+    "Drivers",
+    "User"
+  ],
+  "virtualFolder": {
+    "name": "<virtual_root>",
+    "files": [],
+    "folders": []
+  },
+  "outDir": "build",
+  "deviceName": null,
+  "packDir": null,
+  "miscInfo": {
+    "uid": "6c88deebb6ec851c683a942bcdf78fbb"
+  },
+  "targets": {
+    "Debug": {
+      "excludeList": [],
+      "toolchain": "GCC",
+      "compileConfig": {
+        "cpuType": "Cortex-M3",
+        "floatingPointHardware": "none",
+        "scatterFilePath": "",
+        "useCustomScatterFile": true,
+        "storageLayout": {
+          "RAM": [],
+          "ROM": []
+        },
+        "options": "null"
+      },
+      "uploader": "JLink",
+      "uploadConfig": {
+        "bin": "",
+        "baseAddr": "",
+        "cpuInfo": {
+          "vendor": "ST",
+          "cpuName": "STM32F103C8"
+        },
+        "proType": 1,
+        "speed": 8000,
+        "otherCmds": ""
+      },
+      "uploadConfigMap": {},
+      "custom_dep": {
+        "name": "default",
+        "incList": [
+          "Core/Inc",
+          "Drivers/STM32F1xx_HAL_Driver/Inc",
+          "Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
+          "Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+          "Drivers/CMSIS/Include",
+          "User"
+        ],
+        "libList": [
+          "User"
+        ],
+        "sourceDirList": [],
+        "defineList": [
+          "DEBUG",
+          "USE_HAL_DRIVER",
+          "STM32F103xB"
+        ]
+      }
+    },
+    "Release": {
+      "excludeList": [],
+      "toolchain": "GCC",
+      "compileConfig": {
+        "cpuType": "Cortex-M3",
+        "floatingPointHardware": "none",
+        "scatterFilePath": "",
+        "useCustomScatterFile": true,
+        "storageLayout": {
+          "RAM": [],
+          "ROM": []
+        },
+        "options": "null"
+      },
+      "uploader": "JLink",
+      "uploadConfig": {
+        "bin": "",
+        "baseAddr": "",
+        "cpuInfo": {
+          "vendor": "ST",
+          "cpuName": "STM32F103C8"
+        },
+        "proType": 1,
+        "speed": 8000,
+        "otherCmds": ""
+      },
+      "uploadConfigMap": {},
+      "custom_dep": {
+        "name": "default",
+        "incList": [
+          "Core/Inc",
+          "Drivers/STM32F1xx_HAL_Driver/Inc",
+          "Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
+          "Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+          "Drivers/CMSIS/Include"
+        ],
+        "defineList": [
+          "USE_HAL_DRIVER",
+          "STM32F103xB"
+        ],
+        "sourceDirList": [],
+        "libList": []
+      }
+    }
+  },
+  "version": "3.3"
+}
