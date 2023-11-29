@@ -6,7 +6,8 @@
     ],
     "settings": {
         "files.associations": {
-            "compare": "cpp"
+            "compare": "cpp",
+            "type_traits": "cpp"
         }
     },
     "extensions": {}

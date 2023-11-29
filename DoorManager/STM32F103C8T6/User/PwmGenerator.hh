@@ -16,6 +16,11 @@ public:
         : htim_(htim)
         , channel_(channel)
     {
+    }
+
+    /// @brief PWM初始化, 开始PWM
+    void Init()
+    {
         HAL_TIM_PWM_Start(htim_, channel_);
     }
 

@@ -5,6 +5,9 @@
 #include "PwmGenerator.hh"
 #include "DoorEvent.hh"
 
+#define MAX_PWM_RATIO 0.135
+#define MIN_PWM_RATIO 0.015
+
 void CountAdd(uint32_t& count)
 {
     HAL_Delay(1);
@@ -19,13 +22,27 @@ bool IsTask(const uint32_t& count, const uint16_t count_task)
         return 0;
 }
 
+/// @brief 设置舵机位置
+/// @param speed -1(逆时针) ~ 1(顺时针)
+void SetSteerPosition(PwmGenerator& pwm, float speed)
+{
+    if (speed > 1 || speed < -1)
+        return;
+
+    pwm.SetPwmRatio((MIN_PWM_RATIO - MAX_PWM_RATIO) * speed / 2 + (MAX_PWM_RATIO + MIN_PWM_RATIO) / 2);
+}
+
 /// @brief 开门事件
 /// @param pwm 控制舵机的pwm控制器
-/// @note 对于pwm占空比 0.2(顺时针最大速度) - 0.4(逆时针最大速度)
-void OpenDoor(PwmGenerator pwm)
+void OpenDoor(PwmGenerator& pwm)
 {
-    pwm.SetPwmRatio(0.4);
-    HAL_Delay(1400);
-    pwm.SetPwmRatio(0.2);
-    HAL_Delay(1400);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+
+    SetSteerPosition(pwm, -0.45);
+    HAL_Delay(1000);
+
+    SetSteerPosition(pwm, 0.96);
+    HAL_Delay(1000);
+
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 }

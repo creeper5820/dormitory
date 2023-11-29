@@ -39,15 +39,13 @@ const uint8_t return_head[] = {
 
 const uint8_t id_member[][4] = {
     { 0x93, 0x36, 0x2A, 0x13 },
-    { 0x13, 0x1A, 0x37, 0x10 }
+    { 0x13, 0x1A, 0x37, 0x10 },
+    { 0x32, 0x7E, 0x6A, 0x53 }
 };
 
 enum EVENT {
-    NFC_PASS,
+    NFC_PASS = 0,
     NFC_BLOCK,
-    NFC_ALIVE,
-    NFC_DEAD,
-    NFC_WAIT,
     NFC_NONE,
 };
 
@@ -57,7 +55,6 @@ class NfcController {
 private:
     SerialManager serial_;
 
-    uint8_t cache_[50];
     uint8_t id_[4];
     size_t size_ = 0;
 
@@ -65,6 +62,24 @@ public:
     NfcController(UART_HandleTypeDef* huart)
         : serial_(SerialManager(huart))
     {
+        EmptyCache();
+        EmptyId();
+    }
+
+    void Init()
+    {
+        Recevice();
+        Awake();
+    }
+
+    void Recevice()
+    {
+        serial_.Recevice(3);
+    }
+
+    SerialManager& GetSerial()
+    {
+        return serial_;
     }
 
     void Awake()
@@ -84,7 +99,7 @@ public:
 
     void EmptyCache()
     {
-        memset(cache_, '\0', sizeof(cache_));
+        memset(serial_.GetData(), '\0', CACHE_SIZE);
         size_ = 0;
     }
 
@@ -94,7 +109,7 @@ public:
             return 0;
 
         for (int i = 0; i < (int)sizeof(return_alive); i++) {
-            if (cache_[i] != return_alive[i])
+            if (serial_.GetData()[i] != return_alive[i])
                 return 0;
         }
 
@@ -104,7 +119,7 @@ public:
     bool Check(int& position, const uint8_t* return_check, int size_check)
     {
         for (int i = 0; i < size_check; i++) {
-            if (cache_[position + i] != return_check[i])
+            if (serial_.GetData()[position + i] != return_check[i])
                 return 0;
         }
         position += size_check;
@@ -113,6 +128,8 @@ public:
 
     event ReturnHandler()
     {
+        // extern SerialManager type_c;
+
         if (serial_.GetStatus() != READY)
             return NFC_NONE;
 
@@ -122,24 +139,22 @@ public:
         Check(position, return_ack, sizeof(return_ack));
 
         // 校验帧头
-        if (Check(position, return_head, sizeof(return_head))) {
+        if (Check(position, return_head, sizeof(return_head)))
 
             // 校验位数
-            if (cache_[position] == 0x0c && cache_[position + 1] == 0xf4) {
+            if (serial_.GetData()[position] == 0x0c
+                && serial_.GetData()[position + 1] == 0xf4) {
 
-                position = 19;
+                // ID位
+                position = 13;
 
-                if (Check(position, &(id_member[0][0]), 4) || Check(position, &(id_member[0][0]), 4)) {
+                for (int i = 0; i < 3; i++)
+                    if (Check(position, &(id_member[i][0]), 4)) {
+                        return NFC_PASS;
+                    }
 
-                    return NFC_PASS;
-                }
+                return NFC_BLOCK;
             }
-
-            return NFC_ALIVE;
-        }
-        else {
-            return NFC_WAIT;
-        }
 
         return NFC_NONE;
     }

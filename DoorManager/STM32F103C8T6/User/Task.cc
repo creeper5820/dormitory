@@ -6,44 +6,57 @@
 #include "PwmGenerator.hh"
 #include "DoorEvent.hh"
 
-#define COUNT_MAX 10000
+uint32_t count = 0;
+event flag_nfc = NFC_NONE;
 
-SerialManager serial(&huart3);
+NfcController nfc(&huart3);
+SerialManager type_c(&huart1);
+PwmGenerator pwm(&htim4, TIM_CHANNEL_1);
 
-float pwm_ratio = 0;
-
+/// @brief 主循环
 void Loop()
 {
-    NfcController nfc(&huart3);
-    PwmGenerator pwm(&htim4, TIM_CHANNEL_1);
-    uint32_t count = 0;
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+    nfc.Init();
+    pwm.Init();
 
     while (1) {
         CountAdd(count);
 
         if (IsTask(count, 100)) {
-            pwm.SetPwmRatio(pwm_ratio);
+            flag_nfc = nfc.ReturnHandler();
+
+            if (flag_nfc == NFC_PASS) {
+                OpenDoor(pwm);
+                nfc.GetSerial().SetWait();
+                nfc.EmptyCache();
+            }
+
+            if (HAL_GPIO_ReadPin(OPEN_GPIO_Port, OPEN_Pin) == GPIO_PIN_SET)
+                OpenDoor(pwm);
         }
 
-        if (IsTask(count, 4000)) {
-            HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-        }
-
-        if (IsTask(count, 2000)) {
+        if (IsTask(count, 1000)) {
             nfc.Find();
-            // OpenDoor(pwm);
-            HAL_Delay(1);
         }
 
-        if (IsTask(count, COUNT_MAX)) {
+        if (IsTask(count, 10000)) {
             nfc.Awake();
-            HAL_Delay(1);
-            count = 1;
+
+            count = 0;
         }
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+/// @brief 串口收发回调函数覆写
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size)
 {
-    serial.CallBack(huart);
+    if (huart == nfc.GetSerial().GetHandleType()) {
+        nfc.GetSerial().SetSize(Size);
+        nfc.GetSerial().SetReady();
+        nfc.Recevice();
+
+        type_c.Send(1, nfc.GetSerial().GetData(), nfc.GetSerial().GetDataSize());
+    }
 }

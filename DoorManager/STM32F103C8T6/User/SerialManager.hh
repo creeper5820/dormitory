@@ -48,7 +48,7 @@ public:
     ///@param type 0.阻塞接收  1.中断接收  2.DMA  3.ToIdle_DMA
     ///@param time_out 阻塞发送的超时时间，默认为50
     ///@retval HAL status: HAL_OK(0x00) | HAL_ERROR | HAL_BUSY | HAL_TIMEOUT
-    HAL_StatusTypeDef Recevice(uint8_t type, uint32_t time_out)
+    HAL_StatusTypeDef Recevice(uint8_t type, uint32_t time_out = 50)
     {
         switch (type) {
         case 0:
@@ -121,10 +121,12 @@ public:
 
     /// @brief 终端回调函数
     /// @param huart 串口句柄
-    void CallBack(UART_HandleTypeDef* huart)
+    void CallBack(UART_HandleTypeDef* huart, uint16_t size)
     {
-        if (huart == huart_)
+        if (huart == huart_) {
             SetReady();
+            cache_size_ = size;
+        }
     }
 
     /// @brief 你好世界 测试用函数
