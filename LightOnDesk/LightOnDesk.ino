@@ -17,7 +17,7 @@ void setup()
 
 void loop()
 {
-    FastLED.setBrightness(240);
+    FastLED.setBrightness(255);
     fill_solid(leds, 30, CRGB(255, 198, 107));
     FastLED.show();
 }
